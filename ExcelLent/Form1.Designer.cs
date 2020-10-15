@@ -45,7 +45,7 @@
             this.FileMenuItem});
             this.Menu.Location = new System.Drawing.Point(0, 0);
             this.Menu.Name = "Menu";
-            this.Menu.Size = new System.Drawing.Size(1275, 28);
+            this.Menu.Size = new System.Drawing.Size(1063, 28);
             this.Menu.TabIndex = 1;
             this.Menu.Text = "File";
             // 
@@ -79,10 +79,10 @@
             // dataGridView1
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(2, 27);
+            this.dataGridView1.Location = new System.Drawing.Point(0, 31);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.Size = new System.Drawing.Size(1261, 424);
+            this.dataGridView1.Size = new System.Drawing.Size(100, 100);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.Text = "dataGridView1";
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
@@ -92,12 +92,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1275, 450);
+            this.ClientSize = new System.Drawing.Size(1063, 387);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.Menu);
             this.MainMenuStrip = this.Menu;
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.Menu.ResumeLayout(false);
             this.Menu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
