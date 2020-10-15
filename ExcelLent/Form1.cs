@@ -24,23 +24,15 @@ namespace ExcelLent
             this.dataGridView1.Rows.Insert(0, "one", "two", "three", "four");
             this.dataGridView1.Rows.Insert(0, "Влад", "не ", "любит", "шарп");
             this.dataGridView1.Rows.Add(new string[] { "xd", "lmao" });
-
-            
-
-
-            //btn.UseColumnTextForButtonValue = true;
         }
 
         private void dataGridView1_insertRow(int index)
         {
-            //dataGridView1.RowCount++;
             dataGridView1.Rows.Insert(index);
         }
 
         private void dataGridView1_insertCol(int index)
         {
-            // dataGridView1.ColumnCount++;
-           //DataGridViewCell tmp_cell = new DataGridViewCell();
            
            DataGridViewColumn columnToInsert = new DataGridViewColumn();
 
@@ -72,18 +64,23 @@ namespace ExcelLent
             }
         }
 
-        private void dataGridView1_MouseHover(object sender, EventArgs e)
+        private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-            var p = dataGridView1.PointToClient(Cursor.Position);
-            var info = dataGridView1.HitTest(p.X, p.Y);
-
-            if (info.RowIndex == 0)
+            if (e.RowIndex == dataGridView1.RowCount - 1 && e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                //object value = dataGridView1.Rows[0].Cells[info.ColumnIndex].Value;
-                //dataGridView1.Columns[info.ColumnIndex].CellTemplate = new DataGridViewHeader
+                dataGridView1.Columns.RemoveAt(e.ColumnIndex);
             }
-            //MessageBox.Show(dataGridView1.Columns[0].HeaderCell.GetType().ToString());
-            //MessageBox.Show(dataGridView1[2, -1].GetType().ToString());
+            else if (e.ColumnIndex == -1 && e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                dataGridView1.Rows.RemoveAt(e.RowIndex);
+            }
         }
+
+
+        /*
+         * var p = dataGridView1.PointToClient(Cursor.Position);
+            var info = dataGridView1.HitTest(p.X, p.Y);    - to define where the mouse click event happened 
+         */
+
     }
 }

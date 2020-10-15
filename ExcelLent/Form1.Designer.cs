@@ -86,7 +86,7 @@
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.Text = "dataGridView1";
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
-            this.dataGridView1.MouseHover += new System.EventHandler(this.dataGridView1_MouseHover);
+            this.dataGridView1.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseDown);
             // 
             // Form1
             // 
