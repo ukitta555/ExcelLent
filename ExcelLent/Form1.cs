@@ -13,11 +13,13 @@ namespace ExcelLent
 {
     public partial class Form1 : Form
     {
+        private int rowClick;
+        private int columnClick;
         public Form1()
         {
             InitializeComponent();
-            dataGridView1.ColumnCount = 200;
-            dataGridView1.RowCount = 200;
+            dataGridView1.ColumnCount = 50;
+            dataGridView1.RowCount = 50;
             dataGridView1.Columns[0].Name = "Product ID";
             dataGridView1.Columns[1].Name = "Product Name";
             dataGridView1.Columns[2].Name = "Product Price";
@@ -25,12 +27,12 @@ namespace ExcelLent
             this.dataGridView1.Rows.Insert(0, "Влад", "не ", "любит", "шарп");
         }
 
-        private void dataGridView1_insertRow(int index)
+        private void dataGridView1_InsertRow(int index)
         {
             dataGridView1.Rows.Insert(index);
         }
 
-        private void dataGridView1_insertCol(int index)
+        private void dataGridView1_InsertCol(int index)
         {
            
            DataGridViewColumn columnToInsert = new DataGridViewColumn();
@@ -41,19 +43,59 @@ namespace ExcelLent
            dataGridView1.Columns[index].Name = "New Column";
            dataGridView1.Columns[index].SortMode = DataGridViewColumnSortMode.Automatic;
         }
+        
+        private void dataGridView1_DelRow(int index)
+        {
+            dataGridView1.Rows.RemoveAt(index);
+        }
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView1_DelCol(int index)
+        {
+            dataGridView1.Columns.RemoveAt(index);
+        }
+
+        private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            // Ignore if a column or row header is clicked
+            if (e.RowIndex == -1 || e.ColumnIndex == -1)
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+
+                    // Get mouse position relative to the vehicles grid
+                    var relativeMousePosition = dataGridView1.PointToClient(Cursor.Position);
+
+                    rowClick = e.RowIndex;
+                    columnClick = e.ColumnIndex;
+                    // Show the context menu
+                    contextMenuStrip1.Show(dataGridView1, relativeMousePosition);
+                }
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        { 
+
+            // fullscreen form
+            WindowState = FormWindowState.Maximized;
+
+            //fullscreen DGV
+            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            dataGridView1.Dock = DockStyle.Fill;
+        }
+
+        private void AddMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                if (e.RowIndex == dataGridView1.RowCount - 1)
+                if (rowClick == -1)
                 {
-                    dataGridView1_insertCol(e.ColumnIndex + 1);
+                    dataGridView1_InsertCol(columnClick + 1);
                 }
-                else if (e.ColumnIndex == -1)
-                {   
-                    dataGridView1_insertRow(e.RowIndex + 1);
-                    
+                if (columnClick == -1)
+                {
+                    dataGridView1_InsertRow(rowClick + 1);
+
                 }
             }
             catch (IndexOutOfRangeException exc)
@@ -62,28 +104,24 @@ namespace ExcelLent
             }
         }
 
-        private void dataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        private void DelMenuItem_Click(object sender, EventArgs e)
         {
-            if (e.RowIndex == dataGridView1.RowCount - 1 && e.Button == MouseButtons.Right)
+            try
             {
-                dataGridView1.Columns.RemoveAt(e.ColumnIndex );
+                if (rowClick == -1 && columnClick != -1)
+                {
+                    dataGridView1_DelCol(columnClick);
+                }
+                else if (columnClick == -1 && rowClick != -1)
+                {
+                    dataGridView1_DelRow(rowClick);
+
+                }
             }
-            else if (e.ColumnIndex == -1 && e.Button == MouseButtons.Right)
+            catch (IndexOutOfRangeException exc)
             {
-                dataGridView1.Rows.RemoveAt(e.RowIndex);
+                MessageBox.Show(exc.Message);
             }
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        { 
-
-            // fullscreen form
-            TopMost = true;
-            WindowState = FormWindowState.Maximized;
-
-            //fullscreen DGV
-            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            dataGridView1.Dock = DockStyle.Fill;
         }
 
 
