@@ -1,0 +1,167 @@
+﻿using Antlr4.Runtime.Misc;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Globalization;
+using System.Windows.Forms;
+
+namespace ExcelLent
+{
+    class ExcelLentVisitor : ExpressionGrammarBaseVisitor<double>
+    {
+        public override double VisitCompileUnit(ExpressionGrammarParser.CompileUnitContext context)
+        {
+            return Visit(context.expression());
+        }
+
+        //IdentifierExpression
+        
+
+        public override double VisitParenthesizedExpression(ExpressionGrammarParser.ParenthesizedExpressionContext context)
+        {
+            return Visit(context.expression());
+        }
+
+        public override double VisitExponentExpression(ExpressionGrammarParser.ExponentExpressionContext context)
+        {
+            var left = WalkLeft(context);
+            var right = WalkRight(context);
+
+            Debug.WriteLine("{0} ^ {1}", left, right);
+            return System.Math.Pow(left, right);
+        }
+
+        public override double VisitDivExpression(ExpressionGrammarParser.DivExpressionContext context)
+        { 
+            var left = WalkLeft(context);
+            var right = WalkRight(context);
+
+            Debug.WriteLine("{0} div {1}", left, right);
+
+            return (int)left / (int)right;
+        }
+
+        public override double VisitModExpression(ExpressionGrammarParser.ModExpressionContext context)
+        {
+            var left = WalkLeft(context);
+            var right = WalkRight(context);
+
+            Debug.WriteLine("{0} mod {1}", left, right);
+            return left % right;
+        }
+        public override double VisitNumberExpression(ExpressionGrammarParser.NumberExpressionContext context)
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
+
+            var result = Convert.ToDouble(context.GetText());
+            Debug.WriteLine(result);
+
+            return result;
+        }
+
+        public override double VisitMinusExpression(ExpressionGrammarParser.MinusExpressionContext context)
+        { 
+            var expression = WalkLeft(context);
+            return -1 * expression;
+        }
+
+        public override double VisitPlusExpression([NotNull] ExpressionGrammarParser.PlusExpressionContext context)
+        {
+            var expression = WalkLeft(context);
+            return expression;
+        }
+
+        public override double VisitMMinExpression([NotNull] ExpressionGrammarParser.MMinExpressionContext context)
+        {
+            double min = Double.PositiveInfinity;
+            var result = context.GetText();
+            string[] expressions = result.Split(",");
+            for (int i = 0; i < expressions.Length; i++)
+            {
+                var expression = Visit(context.GetRuleContext<ExpressionGrammarParser.ExpressionContext>(i));
+                if (min > expression)
+                {
+                    min = expression;
+                }
+            }
+            
+            return min;
+        }
+
+        public override double VisitMMaxExpression([NotNull] ExpressionGrammarParser.MMaxExpressionContext context)
+        {
+            double max = Double.NegativeInfinity;
+            var result = context.GetText();
+            string[] expressions = result.Split(",");
+            for (int i = 0; i < expressions.Length; i++)
+            {
+                var expression = Visit(context.GetRuleContext<ExpressionGrammarParser.ExpressionContext>(i));
+                if (max < expression)
+                {
+                    max = expression;
+                }
+            }
+
+            return max;
+        }
+           
+        public override double VisitIdentifierExpression(ExpressionGrammarParser.IdentifierExpressionContext context)
+        {
+            var result = context.GetText();
+            string letters = "";
+            int i = 0;
+            while (Char.IsLetter(result[i]))
+            {
+                letters += result[i];
+                i++;
+            }
+            int numbers = Convert.ToInt32(result.Substring(i));
+            
+            // get DataGridView
+            var dgv = Program.form1.getDataGridView();
+
+            // update variable dependencies - send selected cells to the ones that they use
+            int currentRow = Program.form1.CurrentRow; // get row of cell for which we update the expression
+            int currentCol = Program.form1.CurrentColumn; // get col of cell for which we update the expression
+            MyCell cell = (MyCell)dgv.Rows[currentRow].Cells[currentCol];// get cell
+            // get cell name in Excel terms
+            string colName = dgv.Columns[cell.ColumnIndex].HeaderText;
+            string rowName = cell.RowIndex.ToString();
+
+          //  MessageBox.Show("added variable dependency:" + (colName + rowName) + " to " + (numbers.ToString() + letters));
+            // add it as a cell to visit while checking recursion
+            ((MyCell)(dgv.Rows[numbers].Cells[letters])).Variables.Add(colName + rowName);
+            
+            try
+            {
+                if (!RecurChecker.Check((MyCell)dgv.Rows[numbers].Cells[letters], numbers + letters, new HashSet<string>()))
+                {
+                    return Convert.ToDouble(Calculator.Evaluate(((MyCell)dgv.Rows[numbers].Cells[letters]).Expression));
+                }
+                else
+                {
+                    throw new Exception("Cycles detected!");
+                }
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message, "Cycles!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return 0;
+            }
+        }
+
+        private double WalkLeft(ExpressionGrammarParser.ExpressionContext context)
+        {
+            return Visit(context.GetRuleContext<ExpressionGrammarParser.ExpressionContext>(0));
+        }
+
+        private double WalkRight(ExpressionGrammarParser.ExpressionContext context)
+        {
+            return Visit(context.GetRuleContext<ExpressionGrammarParser.ExpressionContext>(1));
+        }
+    }
+}
+

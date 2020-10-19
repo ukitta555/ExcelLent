@@ -13,26 +13,38 @@ namespace ExcelLent
 {
     public partial class Form1 : Form
     {
-        private int rowClick;
-        private int columnClick;
-        private string[] alphabet;
+        private int currentRow;
+        private int currentColumn;
+        public static string[] alphabet;
+
+        public int CurrentRow
+        {
+            get { return currentRow; }
+        }
+
+        public int CurrentColumn
+        {
+            get { return currentColumn; }
+        }
         public Form1()
         {
             // set up alphabet for column naming
-            alphabet = new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-
+            alphabet = new string[] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
             // launch component
             InitializeComponent();
 
-            // amount of columns and rows
-            dataGridView1.ColumnCount = 150;
-            dataGridView1.RowCount = 28;
+   
 
+            int columnCount = 40;
+            DataGridViewColumn col;
+            // set MyCell as a template for all columns in DataGridView
+            for (int i = 0; i < columnCount; i++)
+            {
+                col = new DataGridViewColumn(new MyCell());
+                dataGridView1.Columns.Insert(0, col);
+            }
 
-            //dummy data
-            this.dataGridView1.Rows.Insert(0, "one", "two", "three", "four");
-            this.dataGridView1.Rows.Insert(0, "Влад", "не ", "любит", "шарп");
-
+            dataGridView1.RowCount = 40;
             // fill names
             FillColumnNames(); // start from A
             FillRowNames(); // start from 1
@@ -48,6 +60,7 @@ namespace ExcelLent
             foreach (DataGridViewColumn col in dataGridView1.Columns)
             {
                 col.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                
             }
         }
         private  void FitRowWidth()
@@ -59,14 +72,16 @@ namespace ExcelLent
         {
             DataGridViewColumn col;
             int numberToConvert = 1;
+            Stack<int> base27Number;
             for (int i = 0; i < dataGridView1.ColumnCount; i++)
             {
+                base27Number = ConvertToBase27(numberToConvert);
                 col = dataGridView1.Columns[i];
-                if (numberToConvert % 27 == 0)
+                while (base27Number == null) 
                 {
-                    numberToConvert++; // degenarate case (two AA columns and so on)...
+                    numberToConvert++;
+                    base27Number = ConvertToBase27(numberToConvert);
                 }
-                Stack<int> base27Number = ConvertToBase27(numberToConvert);
                 StringBuilder name = new StringBuilder("");
                 while (base27Number.Count != 0)
                 {
@@ -74,40 +89,12 @@ namespace ExcelLent
                     string character = alphabet[nextPartOfNumber - 1];
                     name.Append(character);
                 }
+                col.Name = name.ToString();
                 col.HeaderText = name.ToString();
                 numberToConvert++;
             }
         }
 
-        /*
-        // from a certain column after delete / add
-        private void FillColumnNames(int index)
-        {
-            DataGridViewColumn col;
-            int numberToConvert = index + 1; // use the trick with naming - it starts from 1 in base 27
-            if (numberToConvert % 28 == 0) numberToConvert++; // another degenrate case - double AA etc.
-            MessageBox.Show(numberToConvert.ToString());
-            // start from the new column 
-            for (int i = index; i < dataGridView1.ColumnCount; i++)
-            {
-                col = dataGridView1.Columns[i];
-                if (numberToConvert % 27 == 0)
-                {
-                    numberToConvert++; // degenarate case (two AA columns and so on)...
-                }
-                Stack<int> base27Number = ConvertToBase27(numberToConvert);
-                StringBuilder name = new StringBuilder("");
-                while (base27Number.Count != 0)
-                {
-                    int nextPartOfNumber = base27Number.Pop();
-                    string character = alphabet[nextPartOfNumber - 1];
-                    name.Append(character);
-                }
-                col.HeaderText= name.ToString();
-                numberToConvert++;
-            }
-        }
-        */
         // fill the starting table
         private void FillRowNames()
         {
@@ -118,26 +105,17 @@ namespace ExcelLent
                 row.HeaderCell.Value = i.ToString();
             }
         }
-        /*
-        // after deletion / addition
-        private void FillRowNames(int index)
-        {
-            DataGridViewRow row;
-            for (int i = index; i < dataGridView1.RowCount; i++)
-            {
-                row = dataGridView1.Rows[i];
-                row.HeaderCell.Value = i.ToString();
-            }
-        }
-        */
+        
         private Stack<int> ConvertToBase27(int number)
         {
             Stack<int> base26Representation = new Stack<int>();
             while (number / 27 > 0)
             {
+                if (number % 27 == 0) return null;
                 base26Representation.Push(number % 27);
                 number /= 27;
             }
+            if (number % 27 == 0) return null;
             base26Representation.Push(number % 27);
             return base26Representation;
         }
@@ -153,7 +131,7 @@ namespace ExcelLent
            
            DataGridViewColumn columnToInsert = new DataGridViewColumn();
 
-           columnToInsert.CellTemplate = new DataGridViewTextBoxCell();
+           columnToInsert.CellTemplate = new MyCell();
 
            dataGridView1.Columns.Insert(index, columnToInsert);
            dataGridView1.Columns[index].Name = "New Column";
@@ -180,8 +158,8 @@ namespace ExcelLent
                     // Get mouse position relative to the vehicles grid
                     var relativeMousePosition = dataGridView1.PointToClient(Cursor.Position);
 
-                    rowClick = e.RowIndex;
-                    columnClick = e.ColumnIndex;
+                    currentRow = e.RowIndex;
+                    currentColumn = e.ColumnIndex;
                     // Show the context menu
                     contextMenuStrip1.Show(dataGridView1, relativeMousePosition);
                 }
@@ -190,28 +168,23 @@ namespace ExcelLent
 
         private void Form1_Load(object sender, EventArgs e)
         { 
-
-            // fullscreen form
-            WindowState = FormWindowState.Maximized;
-
-            //fullscreen DGV
             dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            dataGridView1.Dock = DockStyle.Fill;
         }
         // add new column / row
         private void AddMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                if (rowClick == -1 && columnClick != -1)
+                if (currentRow == -1 && currentColumn != -1)
                 {
-                    dataGridView1_InsertCol(columnClick + 1);
+                    dataGridView1_InsertCol(currentColumn + 1);
                     FillColumnNames();
-                    dataGridView1.Columns[columnClick + 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                    dataGridView1.Columns[currentColumn + 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                    dataGridView1.Columns[currentColumn + 1].CellTemplate = new MyCell();
                 }
-                if (columnClick == -1 && rowClick != -1)
+                if (currentColumn == -1 && currentRow != -1)
                 {
-                    dataGridView1_InsertRow(rowClick + 1);
+                    dataGridView1_InsertRow(currentRow + 1);
                     FillRowNames();
                 }
             }
@@ -225,14 +198,14 @@ namespace ExcelLent
         {
             try
             {
-                if (rowClick == -1 && columnClick != -1)
+                if (currentRow == -1 && currentColumn != -1)
                 {
-                    dataGridView1_DelCol(columnClick);
+                    dataGridView1_DelCol(currentColumn);
                     FillColumnNames();
                 }
-                else if (columnClick == -1 && rowClick != -1)
+                else if (currentColumn == -1 && currentRow != -1)
                 {
-                    dataGridView1_DelRow(rowClick);
+                    dataGridView1_DelRow(currentRow);
                     FillRowNames();
                 }
             }
@@ -242,7 +215,52 @@ namespace ExcelLent
             }
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            CleanVariables();
+            foreach (MyCell cell in dataGridView1.SelectedCells)
+            {
+                cell.Expression = ExpressionTextBox.Text;
+                
+            }
+            EvaluateTable();
+        }
+        public void EvaluateTable ()
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (MyCell cell in row.Cells)
+                {
+                    currentRow = cell.RowIndex;
+                    currentColumn = cell.ColumnIndex;
+                    cell.Value = Calculator.Evaluate(cell.Expression);
+                }
+            }
+        }
 
+        public void CleanVariables()
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (MyCell cell in row.Cells)
+                {
+                    cell.Variables.Clear();
+                }
+            }
+        }
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            ExpressionTextBox.Text = "";
+            if (dataGridView1.SelectedCells.Count == 1)
+            { 
+                ExpressionTextBox.Text = ((MyCell)dataGridView1.SelectedCells[0]).Expression;
+            }
+        }
+
+        public DataGridView getDataGridView()
+        {
+            return dataGridView1;
+        }
         /*
          * var p = dataGridView1.PointToClient(Cursor.Position);
             var info = dataGridView1.HitTest(p.X, p.Y);    - to define where the mouse click event happened 

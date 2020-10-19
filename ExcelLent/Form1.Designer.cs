@@ -38,6 +38,9 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.AddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DelMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AddExpressionButton = new System.Windows.Forms.Button();
+            this.ExpressionTextBox = new System.Windows.Forms.TextBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.Menu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
@@ -84,13 +87,14 @@
             // dataGridView1
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 31);
+            this.dataGridView1.Location = new System.Drawing.Point(0, 92);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.Size = new System.Drawing.Size(1086, 556);
+            this.dataGridView1.Size = new System.Drawing.Size(1232, 357);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.Text = "dataGridView1";
             this.dataGridView1.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseDown);
+            this.dataGridView1.SelectionChanged += new System.EventHandler(this.dataGridView1_SelectionChanged);
             // 
             // contextMenuStrip1
             // 
@@ -116,11 +120,38 @@
             this.DelMenuItem.Text = "Delete";
             this.DelMenuItem.Click += new System.EventHandler(this.DelMenuItem_Click);
             // 
+            // AddExpressionButton
+            // 
+            this.AddExpressionButton.Location = new System.Drawing.Point(136, 37);
+            this.AddExpressionButton.Name = "AddExpressionButton";
+            this.AddExpressionButton.Size = new System.Drawing.Size(152, 29);
+            this.AddExpressionButton.TabIndex = 2;
+            this.AddExpressionButton.Text = "Add Expression";
+            this.AddExpressionButton.UseVisualStyleBackColor = true;
+            this.AddExpressionButton.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // ExpressionTextBox
+            // 
+            this.ExpressionTextBox.Location = new System.Drawing.Point(681, 37);
+            this.ExpressionTextBox.Name = "ExpressionTextBox";
+            this.ExpressionTextBox.Size = new System.Drawing.Size(125, 27);
+            this.ExpressionTextBox.TabIndex = 3;
+            // 
+            // panel1
+            // 
+            this.panel1.Location = new System.Drawing.Point(0, 31);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(991, 38);
+            this.panel1.TabIndex = 4;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(991, 554);
+            this.Controls.Add(this.ExpressionTextBox);
+            this.Controls.Add(this.AddExpressionButton);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.Menu);
             this.MainMenuStrip = this.Menu;
@@ -148,6 +179,10 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem AddMenuItem;
         private System.Windows.Forms.ToolStripMenuItem DelMenuItem;
+        private System.Windows.Forms.Button AddExpressionButton;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TextBox ExpressionTextBox;
     }
 }
 
