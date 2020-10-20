@@ -225,7 +225,7 @@ namespace ExcelLent
             }
             EvaluateTable();
         }
-        public void EvaluateTable ()
+        private void EvaluateTable ()
         {
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
@@ -238,7 +238,7 @@ namespace ExcelLent
             }
         }
 
-        public void CleanVariables()
+        private void CleanVariables()
         {
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
