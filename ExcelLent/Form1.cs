@@ -13,20 +13,29 @@ namespace ExcelLent
 {
     public partial class Form1 : Form
     {
-        private int rowClick;
-        private int columnClick;
-        private string[] alphabet;
+        private int currentRow;
+        private int currentColumn;
+        public static string[] alphabet;
+
+        public int CurrentRow
+        {
+            get { return currentRow; }
+        }
+
+        public int CurrentColumn
+        {
+            get { return currentColumn; }
+        }
         public Form1()
         {
             // set up alphabet for column naming
             alphabet = new string[] {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-
             // launch component
             InitializeComponent();
 
-            dataGridView1.RowCount = 28;
+   
 
-            int columnCount = 100;
+            int columnCount = 40;
             DataGridViewColumn col;
             // set MyCell as a template for all columns in DataGridView
             for (int i = 0; i < columnCount; i++)
@@ -34,6 +43,8 @@ namespace ExcelLent
                 col = new DataGridViewColumn(new MyCell());
                 dataGridView1.Columns.Insert(0, col);
             }
+
+            dataGridView1.RowCount = 40;
             // fill names
             FillColumnNames(); // start from A
             FillRowNames(); // start from 1
@@ -78,6 +89,7 @@ namespace ExcelLent
                     string character = alphabet[nextPartOfNumber - 1];
                     name.Append(character);
                 }
+                col.Name = name.ToString();
                 col.HeaderText = name.ToString();
                 numberToConvert++;
             }
@@ -146,8 +158,8 @@ namespace ExcelLent
                     // Get mouse position relative to the vehicles grid
                     var relativeMousePosition = dataGridView1.PointToClient(Cursor.Position);
 
-                    rowClick = e.RowIndex;
-                    columnClick = e.ColumnIndex;
+                    currentRow = e.RowIndex;
+                    currentColumn = e.ColumnIndex;
                     // Show the context menu
                     contextMenuStrip1.Show(dataGridView1, relativeMousePosition);
                 }
@@ -163,16 +175,16 @@ namespace ExcelLent
         {
             try
             {
-                if (rowClick == -1 && columnClick != -1)
+                if (currentRow == -1 && currentColumn != -1)
                 {
-                    dataGridView1_InsertCol(columnClick + 1);
+                    dataGridView1_InsertCol(currentColumn + 1);
                     FillColumnNames();
-                    dataGridView1.Columns[columnClick + 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-                    dataGridView1.Columns[columnClick + 1].CellTemplate = new MyCell();
+                    dataGridView1.Columns[currentColumn + 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+                    dataGridView1.Columns[currentColumn + 1].CellTemplate = new MyCell();
                 }
-                if (columnClick == -1 && rowClick != -1)
+                if (currentColumn == -1 && currentRow != -1)
                 {
-                    dataGridView1_InsertRow(rowClick + 1);
+                    dataGridView1_InsertRow(currentRow + 1);
                     FillRowNames();
                 }
             }
@@ -186,14 +198,14 @@ namespace ExcelLent
         {
             try
             {
-                if (rowClick == -1 && columnClick != -1)
+                if (currentRow == -1 && currentColumn != -1)
                 {
-                    dataGridView1_DelCol(columnClick);
+                    dataGridView1_DelCol(currentColumn);
                     FillColumnNames();
                 }
-                else if (columnClick == -1 && rowClick != -1)
+                else if (currentColumn == -1 && currentRow != -1)
                 {
-                    dataGridView1_DelRow(rowClick);
+                    dataGridView1_DelRow(currentRow);
                     FillRowNames();
                 }
             }
@@ -204,23 +216,51 @@ namespace ExcelLent
         }
 
         private void button1_Click(object sender, EventArgs e)
-        { 
+        {
+            CleanVariables();
             foreach (MyCell cell in dataGridView1.SelectedCells)
             {
                 cell.Expression = ExpressionTextBox.Text;
+                
+            }
+            EvaluateTable();
+        }
+        public void EvaluateTable ()
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (MyCell cell in row.Cells)
+                {
+                    currentRow = cell.RowIndex;
+                    currentColumn = cell.ColumnIndex;
+                    cell.Value = Calculator.Evaluate(cell.Expression);
+                }
             }
         }
 
+        public void CleanVariables()
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                foreach (MyCell cell in row.Cells)
+                {
+                    cell.Variables.Clear();
+                }
+            }
+        }
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
             ExpressionTextBox.Text = "";
             if (dataGridView1.SelectedCells.Count == 1)
-            {
+            { 
                 ExpressionTextBox.Text = ((MyCell)dataGridView1.SelectedCells[0]).Expression;
             }
         }
 
-
+        public DataGridView getDataGridView()
+        {
+            return dataGridView1;
+        }
         /*
          * var p = dataGridView1.PointToClient(Cursor.Position);
             var info = dataGridView1.HitTest(p.X, p.Y);    - to define where the mouse click event happened 

@@ -8,6 +8,8 @@ namespace ExcelLent
     class MyCell : DataGridViewTextBoxCell
     {
         private string expression = "";
+        public HashSet<string> Variables = new HashSet<string>();
+
 
         public string Expression
         {
