@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
@@ -11,6 +12,17 @@ namespace ExcelLent
         {
             try
             {
+                /*
+                MessageBox.Show("inside recur checker");
+                MessageBox.Show("current var:" + currentVar);
+                string variablesInVars = "";
+                foreach (string var in vars)
+                {
+                    variablesInVars += var + " ";
+                }
+                MessageBox.Show(variablesInVars);
+                */
+
                 HashSet<string> tmp = new HashSet<string>(vars);
                 tmp.IntersectWith(currentCell.Variables);
                 if (tmp.Count != 0) return true;

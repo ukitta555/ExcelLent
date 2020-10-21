@@ -55,7 +55,6 @@
             this.Menu.Name = "Menu";
             this.Menu.Size = new System.Drawing.Size(991, 28);
             this.Menu.TabIndex = 1;
-            this.Menu.Text = "File";
             // 
             // FileMenuItem
             // 
@@ -69,14 +68,16 @@
             // Open
             // 
             this.Open.Name = "Open";
-            this.Open.Size = new System.Drawing.Size(190, 26);
+            this.Open.Size = new System.Drawing.Size(128, 26);
             this.Open.Text = "Open";
+            this.Open.Click += new System.EventHandler(this.OpenMenuItem_Click);
             // 
             // SaveMenuItem
             // 
             this.SaveMenuItem.Name = "SaveMenuItem";
-            this.SaveMenuItem.Size = new System.Drawing.Size(190, 26);
-            this.SaveMenuItem.Text = "SaveMenuItem";
+            this.SaveMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.SaveMenuItem.Text = "Save";
+            this.SaveMenuItem.Click += new System.EventHandler(this.SaveMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -86,6 +87,7 @@
             // 
             // dataGridView1
             // 
+            this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(0, 92);
             this.dataGridView1.Name = "dataGridView1";

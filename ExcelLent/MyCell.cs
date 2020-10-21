@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 
 namespace ExcelLent
 {
-    class MyCell : DataGridViewTextBoxCell
+    [Serializable()]
+    public class MyCell : DataGridViewTextBoxCell
     {
-        private string expression = "";
+        
+        public string expression = "";
+        
         public HashSet<string> Variables = new HashSet<string>();
-
 
         public string Expression
         {
