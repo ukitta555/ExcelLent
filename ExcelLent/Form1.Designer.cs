@@ -55,7 +55,6 @@
             this.Menu.Name = "Menu";
             this.Menu.Size = new System.Drawing.Size(991, 28);
             this.Menu.TabIndex = 1;
-            this.Menu.Text = "File";
             // 
             // FileMenuItem
             // 
@@ -69,14 +68,16 @@
             // Open
             // 
             this.Open.Name = "Open";
-            this.Open.Size = new System.Drawing.Size(190, 26);
+            this.Open.Size = new System.Drawing.Size(128, 26);
             this.Open.Text = "Open";
+            this.Open.Click += new System.EventHandler(this.OpenMenuItem_Click);
             // 
             // SaveMenuItem
             // 
             this.SaveMenuItem.Name = "SaveMenuItem";
-            this.SaveMenuItem.Size = new System.Drawing.Size(190, 26);
-            this.SaveMenuItem.Text = "SaveMenuItem";
+            this.SaveMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.SaveMenuItem.Text = "Save";
+            this.SaveMenuItem.Click += new System.EventHandler(this.SaveMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -93,6 +94,7 @@
             this.dataGridView1.Size = new System.Drawing.Size(1232, 357);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.Text = "dataGridView1";
+            this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEndEdit);
             this.dataGridView1.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseDown);
             this.dataGridView1.SelectionChanged += new System.EventHandler(this.dataGridView1_SelectionChanged);
             // 
