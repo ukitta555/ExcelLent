@@ -36,7 +36,7 @@ namespace ExcelLent
 
 
 
-            int columnCount = 4;
+            int columnCount = 30;
             DataGridViewColumn col;
             // set MyCell as a template for all columns in DataGridView
             for (int i = 0; i < columnCount; i++)
@@ -45,7 +45,7 @@ namespace ExcelLent
                 dataGridView1.Columns.Insert(0, col);
             }
 
-            dataGridView1.RowCount = 4;
+            dataGridView1.RowCount = 30;
             // fill names
             FillColumnNames(); // start from A
             FillRowNames(); // start from 1
@@ -66,7 +66,15 @@ namespace ExcelLent
         }
         private void dataGridView1_InsertRow(int index)
         {
-            dataGridView1.Rows.Insert(index);
+            if (index == dataGridView1.RowCount)
+            {
+                dataGridView1.RowCount++;
+                dataGridView1.Rows[dataGridView1.RowCount - 1].HeaderCell.Value = (dataGridView1.RowCount - 1).ToString();
+            }
+            else
+            {
+                dataGridView1.Rows.Insert(index);
+            }
         }
 
         private void dataGridView1_InsertCol(int index)
@@ -81,13 +89,6 @@ namespace ExcelLent
            dataGridView1.Columns[index].SortMode = DataGridViewColumnSortMode.Automatic;
         }
 
-        private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            MyCell editedCell = (MyCell)dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
-            editedCell.Expression = editedCell.Value.ToString();
-            editedCell.Value = "";
-            ReevaluateTable();
-        }
 
         private void dataGridView1_DelRow(int index)
         {
@@ -188,62 +189,67 @@ namespace ExcelLent
         {
             try
             {
-                List<MyCell> cells = new List<MyCell>();
-                string json = "";
-                json += "\"" + dataGridView1.RowCount + "\"," + "\"" + dataGridView1.ColumnCount + "\",";
-                foreach (DataGridViewRow row in dataGridView1.Rows)
+                SaveFileDialog sfd = new SaveFileDialog();
+
+
+                if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    foreach (MyCell cell in row.Cells)
+                    List<string> infoAboutTable = new List<string>();
+                    
+                    infoAboutTable.Add(dataGridView1.RowCount.ToString());
+                    infoAboutTable.Add(dataGridView1.ColumnCount.ToString());
+
+                    System.Xml.Serialization.XmlSerializer writer =
+                        new System.Xml.Serialization.XmlSerializer(typeof(List<string>));
+
+                    var path = sfd.FileName;
+                    FileStream file = File.Create(path);
+
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
-                        var settings = new JsonSerializerOptions { MaxDepth = 100 };
-                        if (cell.Expression.Contains("\""))
+                        foreach (MyCell cell in row.Cells)
                         {
-                            throw new Exception("\" character is forbidden.");
+                            infoAboutTable.Add(cell.Expression);
                         }
-                        json += JsonSerializer.Serialize(cell.Expression, settings) + ",";
                     }
+                    writer.Serialize(file, infoAboutTable);
+                    file.Close();
                 }
-                json += "\"";
-                File.WriteAllText(dirParameter, json);
             }
             catch (Exception exc)
             {
-                MessageBox.Show("Error!", exc.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(exc.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)
         {
-            string[] fileContents = File.ReadAllLines(dirParameter);
-            string content = "";
-            foreach (string line in fileContents)
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
-                content += line;
-            }
-            string[] expressions = content.Split("\",\"");
-            MessageBox.Show(expressions[0].Substring(1));
-            MessageBox.Show(expressions[1]);
-            dataGridView1.RowCount = int.Parse(expressions[0].Substring(1));
-            dataGridView1.ColumnCount = int.Parse(expressions[1]);
-            int i = 2;
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                foreach (MyCell cell in row.Cells)
+                string fileName = ofd.FileName;
+                using (Stream reader = new FileStream(fileName, FileMode.Open))
                 {
 
-                    cell.Selected = false;
-                    if (expressions[i] == "")
+                    System.Xml.Serialization.XmlSerializer deserializer =
+                        new System.Xml.Serialization.XmlSerializer(typeof(List<string>));
+                    // Call the Deserialize method to restore the object's state.
+                    List<string> infoAboutTable = (List<string>)deserializer.Deserialize(reader);
+                    dataGridView1.RowCount = int.Parse(infoAboutTable[0]);
+                    dataGridView1.ColumnCount = int.Parse(infoAboutTable[1]);
+
+                    int i = 2; // index of expression
+                    foreach (DataGridViewRow row in dataGridView1.Rows)
                     {
-                        cell.Expression = "0";
+                        foreach (MyCell cell in row.Cells)
+                        {
+                            cell.Expression = infoAboutTable[i++];
+                        }
                     }
-                    else
-                    {
-                        cell.Expression = expressions[i];
-                    }
-                    i++;
                 }
+                ReevaluateTable();
             }
-            ReevaluateTable();
         }
 
         

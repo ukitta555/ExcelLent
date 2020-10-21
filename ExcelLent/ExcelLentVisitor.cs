@@ -150,7 +150,7 @@ namespace ExcelLent
                 {
                //     MessageBox.Show("Recur checker OK");
                //     MessageBox.Show("Expression: " + ((MyCell)dgv.Rows[numbers].Cells[letters]).Expression);
-                    Program.form1.CurrentRow = numbers; // get row of cell for which we calculate the expression
+                    Program.form1.CurrentRow = numbers;
                     int tmp;
                     Program.form1.colNameToColIndex.TryGetValue(letters, out tmp);
                     Program.form1.CurrentColumn = tmp;
